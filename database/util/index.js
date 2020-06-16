@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 
 module.exports.connection = async () => {
   try {
+    // To see round trip that field level resolver making
+    // mongoose.set('debug', true)
     await mongoose.connect(process.env.MONGO_DB_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true

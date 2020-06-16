@@ -116,9 +116,11 @@ module.exports = {
      * user: (parent) => users.find(user => user.id === parent.userId)
      * Graphql first resolve query resolver then go to field level resolver
      */
-    user: async (parent) => {
+    user: async (parent, _, { loaders }) => {
       try {
-        const user = await User.findById(parent.user)
+        // pass user as string for data loader comparison instead of object
+        // const user = await User.findById(parent.user)
+        const user = await loaders.user.load(parent.user.toString())
         return user
       } catch(ex) {
         console.log(ex)
