@@ -1,27 +1,58 @@
-const uuid = require('uuid')
 const { combineResolvers } = require('graphql-resolvers')
-const { tasks, users } = require('../constants')
 const Task = require('../database/models/task')
 const User = require('../database/models/user')
 const { isAuthenticated, isTaskOwner } = require('./middleware')
+const { stringToBase64, base64ToString } = require('../helper')
 
 module.exports = {
   /**
    * Query resolver
    */
   Query: {
-    tasks: combineResolvers(isAuthenticated, async (_, { skip=0, limit=10}, { loggedInUserId }) => {
+    // tasks: combineResolvers(isAuthenticated, async (_, { skip=0, limit=10}, { loggedInUserId }) => {
+    //   try {
+    //     // sort in desc order
+    //     // offset limit pagination --->
+    //     // disadvantage --> Duplicate records when there are frequent list update, performance
+    //     // alternative 
+    //     // cursor pagination
+    //     const tasks = await Task.find({ user: loggedInUserId })
+    //       .sort({ _id: -1 })
+    //       .skip(skip)
+    //       .limit(limit)
+    //     return tasks
+    //   } catch(ex) {
+    //     console.log(ex)
+    //     throw ex
+    //   }
+    // }),
+    tasks: combineResolvers(isAuthenticated, async (_, { cursor, limit=10}, { loggedInUserId }) => {
       try {
+        const query = { user: loggedInUserId }
+        if(cursor) {
+          query['_id'] = {
+            '$lt': base64ToString(cursor) 
+          }
+        }
         // sort in desc order
         // offset limit pagination --->
         // disadvantage --> Duplicate records when there are frequent list update, performance
         // alternative 
         // cursor pagination
-        const tasks = await Task.find({ user: loggedInUserId })
+        let tasks = await Task.find(query)
           .sort({ _id: -1 })
-          .skip(skip)
-          .limit(limit)
-        return tasks
+          .limit(limit + 1)
+
+        const hasNextPage = tasks.length > limit
+        tasks = hasNextPage ? tasks.slice(0, -1) : tasks
+
+        return {
+          taskFeed: tasks,
+          pageInfo: {
+            nextPageCursor: hasNextPage? stringToBase64(tasks[tasks.length -1].id): null,
+            hasNextPage
+          }
+        }
       } catch(ex) {
         console.log(ex)
         throw ex

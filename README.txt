@@ -63,20 +63,33 @@ mutation createTask {
   }
 }
 
-query getAllTask {
-  tasks {
-    id
-    name
-    completed
-    user {
+# query getAllTask {
+#   tasks {
+#     id
+#     name
+#     completed
+#     user {
+#       id
+#       email
+#     }
+#   }
+# }
+
+query getAllTaskCursor {
+  tasks(limit: 5, cursor: "NWVlNzAzMGYxMzE4NTExODkyMDhlNThl") {
+    taskFeed {
       id
-      email
+      name
+    }
+  	pageInfo {
+      nextPageCursor
+      hasNextPage
     }
   }
 }
 
 query getTaskById {
-  task(id: "5ee6eae149e25d1889e14444") {
+  task(id: "5ee7030f131851189208e58e") {
     name
     completed
     createdAt
@@ -102,6 +115,7 @@ mutation deleteTask {
     completed
   }
 }
+
 ```
 
 
