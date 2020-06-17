@@ -23,6 +23,7 @@ Navigate to:
 
 User Api:
 ```
+# Write your query or mutation here
 query getUserById {
   user {
     name
@@ -46,10 +47,34 @@ mutation createUser {
   }
 }
 
-mutation login {
-  login(input: { email: "Behrooz@gmail.com", password: "12345" }) {
+mutation login ($email: String!, $password: String!){
+  login(input: { email: $email, password: $password }) {
     token
   }
+}
+
+mutation signup {
+  signup(input: {
+    email: "Poori@gmail.com", password: "12345", name: "Poori"
+  }) {
+    id
+    name
+  }
+}
+```
+
+USER VARIABLES
+```
+{
+  "email": "behrooztabesh@gmail.com",
+  "password" : "12345"
+}
+```
+
+HTTP HEADERS
+```
+{
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 }
 ```
 
@@ -115,10 +140,18 @@ mutation deleteTask {
     completed
   }
 }
-
 ```
 
-
+User Subscription
+```
+subscription {
+  userCreated {
+    id
+    name
+    email
+  }
+}
+```
 
 
 
