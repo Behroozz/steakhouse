@@ -30,6 +30,17 @@ app.use(cors())
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+  engine: {
+    // The Graph Manager API key
+    apiKey: process.env.APOLLO_KEY,
+    // A tag for this specific environment (e.g. `development` or `production`).
+    // For more information on schema tags/variants, see
+    // https://www.apollographql.com/docs/platform/schema-registry/#associating-metrics-with-a-variant
+    schemaTag: 'development',
+  },
+  engine: {    
+    reportSchema: true
+  },
   context: async ({ req, connection }) => {
     const contextObj = {}
     if(req) {
@@ -54,9 +65,9 @@ apolloServer.applyMiddleware({app, path: '/graphql' })
 
 const PORT = process.PORT || 3001
 
-app.use('/', (req, res, next) => {
-  res.send({ message: 'Hello'})
-})
+// app.use('/', (req, res, next) => {
+//   res.send({ message: 'Hello'})
+// })
 
 const httpServer = app.listen(PORT, () => {
   console.log(`Server listening on PORT: ${PORT}`)
